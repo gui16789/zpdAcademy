@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+
+:root {
+  --bg-deep: #071022;
+  --bg-mid: #0e1e3c;
+  --ink: #e8f0ff;
+  --ink-muted: #adc4ef;
+  --surface: rgba(8, 23, 50, 0.72);
+  --stroke: rgba(162, 196, 255, 0.32);
+  --accent: #54f2bd;
+  --accent-soft: #7ba9ff;
+  font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  color: var(--ink);
+  background: radial-gradient(circle at 0% 0%, #193f79 0%, transparent 45%),
+    radial-gradient(circle at 100% 100%, #21426f 0%, transparent 35%),
+    linear-gradient(160deg, var(--bg-deep), var(--bg-mid));
+  font-size: 16px;
+  line-height: 1.5;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
