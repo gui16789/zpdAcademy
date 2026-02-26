@@ -4,6 +4,7 @@ export const TASK_ID = 'DEV-20260226-001'
 export const MAP_PROGRESS_TASK_ID = 'DEV-20260226-002'
 export const PROGRESS_PERSIST_TASK_ID = 'DEV-20260226-003'
 export const QUESTION_MVP_TASK_ID = 'DEV-20260226-004'
+export const SCORE_HISTORY_TASK_ID = 'DEV-20260226-005'
 export const PROGRESS_STORAGE_KEY = 'zpd-academy-progress-v1'
 
 export const ROUTES = {

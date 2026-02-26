@@ -1,5 +1,5 @@
 import { PROGRESS_STORAGE_KEY } from '../../config/constants'
-import type { ProgressSnapshot } from '../../types/progress'
+import type { ProgressSnapshot, UnitScoreRecord } from '../../types/progress'
 
 const DEFAULT_UNLOCKED_INDEX = 0
 
@@ -7,10 +7,42 @@ function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((item) => typeof item === 'string')
 }
 
+function isValidScoreRecord(value: unknown): value is UnitScoreRecord {
+  if (!value || typeof value !== 'object') {
+    return false
+  }
+
+  const candidate = value as Partial<UnitScoreRecord>
+
+  return (
+    typeof candidate.attempts === 'number' &&
+    candidate.attempts >= 0 &&
+    typeof candidate.lastScore === 'number' &&
+    candidate.lastScore >= 0 &&
+    candidate.lastScore <= 100 &&
+    typeof candidate.bestScore === 'number' &&
+    candidate.bestScore >= 0 &&
+    candidate.bestScore <= 100
+  )
+}
+
+function normalizeUnitScoreRecords(value: unknown): Record<string, UnitScoreRecord> {
+  if (!value || typeof value !== 'object') {
+    return {}
+  }
+
+  const entries = Object.entries(value as Record<string, unknown>).filter((entry) =>
+    isValidScoreRecord(entry[1]),
+  )
+
+  return Object.fromEntries(entries) as Record<string, UnitScoreRecord>
+}
+
 export function getDefaultProgressSnapshot(): ProgressSnapshot {
   return {
     completedUnitIds: [],
     currentUnlockedIndex: DEFAULT_UNLOCKED_INDEX,
+    unitScoreRecords: {},
   }
 }
 
@@ -29,6 +61,7 @@ export function normalizeProgressSnapshot(value: unknown): ProgressSnapshot {
   return {
     completedUnitIds,
     currentUnlockedIndex,
+    unitScoreRecords: normalizeUnitScoreRecords(candidate.unitScoreRecords),
   }
 }
 

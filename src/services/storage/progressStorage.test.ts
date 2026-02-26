@@ -21,6 +21,9 @@ describe('progressStorage', () => {
     const snapshot = {
       completedUnitIds: ['unit-01', 'unit-02'],
       currentUnlockedIndex: 2,
+      unitScoreRecords: {
+        'unit-01': { attempts: 2, lastScore: 80, bestScore: 90 },
+      },
     }
 
     saveProgressSnapshot(snapshot)
@@ -38,11 +41,32 @@ describe('progressStorage', () => {
     const malformed = {
       completedUnitIds: ['unit-01', 5],
       currentUnlockedIndex: -2,
+      unitScoreRecords: {
+        'unit-01': {
+          attempts: -1,
+          lastScore: 120,
+          bestScore: 120,
+        },
+      },
     }
 
     expect(normalizeProgressSnapshot(malformed)).toEqual({
       completedUnitIds: [],
       currentUnlockedIndex: 0,
+      unitScoreRecords: {},
+    })
+  })
+
+  it('keeps compatibility with old snapshots without score records', () => {
+    const oldSnapshot = {
+      completedUnitIds: ['unit-02'],
+      currentUnlockedIndex: 1,
+    }
+
+    expect(normalizeProgressSnapshot(oldSnapshot)).toEqual({
+      completedUnitIds: ['unit-02'],
+      currentUnlockedIndex: 1,
+      unitScoreRecords: {},
     })
   })
 
@@ -50,6 +74,9 @@ describe('progressStorage', () => {
     saveProgressSnapshot({
       completedUnitIds: ['unit-01'],
       currentUnlockedIndex: 1,
+      unitScoreRecords: {
+        'unit-01': { attempts: 1, lastScore: 75, bestScore: 75 },
+      },
     })
 
     clearProgressSnapshot()
