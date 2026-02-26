@@ -10,7 +10,8 @@ import type { ProgressSnapshot } from '../types/progress'
 interface ProgressStoreState {
   completedUnitIds: string[]
   currentUnlockedIndex: number
-  markUnitCompleted: (unitId: string) => void
+  unitScoreRecords: ProgressSnapshot['unitScoreRecords']
+  submitUnitResult: (unitId: string, score: number, isPassed: boolean) => void
   resetProgress: () => void
 }
 
@@ -31,27 +32,45 @@ function persistSnapshot(snapshot: ProgressSnapshot): void {
   saveProgressSnapshot({
     completedUnitIds: snapshot.completedUnitIds,
     currentUnlockedIndex: clampUnlockedIndex(snapshot.currentUnlockedIndex),
+    unitScoreRecords: snapshot.unitScoreRecords,
   })
 }
 
 export const useProgressStore = create<ProgressStoreState>((set) => ({
   completedUnitIds: persistedSnapshot.completedUnitIds.filter((unitId) => unitIdSet.has(unitId)),
   currentUnlockedIndex: clampUnlockedIndex(persistedSnapshot.currentUnlockedIndex),
-  markUnitCompleted: (unitId) =>
+  unitScoreRecords: Object.fromEntries(
+    Object.entries(persistedSnapshot.unitScoreRecords).filter(([unitId]) => unitIdSet.has(unitId)),
+  ),
+  submitUnitResult: (unitId, score, isPassed) =>
     set((state) => {
-      const completedUnitIds = state.completedUnitIds.includes(unitId)
-        ? state.completedUnitIds
-        : [...state.completedUnitIds, unitId]
+      const safeScore = Math.max(0, Math.min(100, Math.round(score)))
+      const existingRecord = state.unitScoreRecords[unitId]
+      const nextRecord = {
+        attempts: (existingRecord?.attempts ?? 0) + 1,
+        lastScore: safeScore,
+        bestScore: Math.max(existingRecord?.bestScore ?? 0, safeScore),
+      }
+      const unitScoreRecords = {
+        ...state.unitScoreRecords,
+        [unitId]: nextRecord,
+      }
+
+      const completedUnitIds =
+        isPassed && !state.completedUnitIds.includes(unitId)
+          ? [...state.completedUnitIds, unitId]
+          : state.completedUnitIds
 
       const completedIndex = LEARNING_UNITS.findIndex((unit) => unit.id === unitId)
       const nextUnlockedIndex =
-        completedIndex >= state.currentUnlockedIndex
+        isPassed && completedIndex >= state.currentUnlockedIndex
           ? Math.min(completedIndex + 1, LEARNING_UNITS.length - 1)
           : state.currentUnlockedIndex
 
       const nextSnapshot = {
         completedUnitIds,
         currentUnlockedIndex: nextUnlockedIndex,
+        unitScoreRecords,
       }
 
       persistSnapshot(nextSnapshot)
@@ -63,6 +82,7 @@ export const useProgressStore = create<ProgressStoreState>((set) => ({
     set({
       completedUnitIds: [],
       currentUnlockedIndex: INITIAL_UNLOCKED_INDEX,
+      unitScoreRecords: {},
     })
   },
 }))

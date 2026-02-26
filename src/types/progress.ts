@@ -12,7 +12,14 @@ export interface LearningUnitWithStatus extends LearningUnit {
   isActionable: boolean
 }
 
+export interface UnitScoreRecord {
+  attempts: number
+  lastScore: number
+  bestScore: number
+}
+
 export interface ProgressSnapshot {
   completedUnitIds: string[]
   currentUnlockedIndex: number
+  unitScoreRecords: Record<string, UnitScoreRecord>
 }
