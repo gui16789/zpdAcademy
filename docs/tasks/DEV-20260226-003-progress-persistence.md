@@ -57,4 +57,6 @@
 - Commit：
   - `373245e`（Sub-1, Sub-2）
   - `080802c`（Sub-3）
+  - `463d017`（Sub-4）
+- PR：[#19](https://github.com/gui16789/zpdAcademy/pull/19)
 - Event Log：`docs/events/DEV-20260226-003-event-log.md`
