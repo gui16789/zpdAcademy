@@ -12,6 +12,7 @@ export interface IQuestionService {
     questions: SingleChoiceQuestion[],
     submissions: QuestionSubmission[],
   ): QuestionEvaluation
+  getWrongQuestionIds(evaluation: QuestionEvaluation): string[]
 }
 
 class QuestionService implements IQuestionService {
@@ -50,6 +51,10 @@ class QuestionService implements IQuestionService {
       isPassed: score >= passScore,
       results,
     }
+  }
+
+  public getWrongQuestionIds(evaluation: QuestionEvaluation): string[] {
+    return evaluation.results.filter((item) => !item.isCorrect).map((item) => item.questionId)
   }
 }
 
