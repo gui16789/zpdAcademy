@@ -59,4 +59,6 @@
   - `afaf473`（Sub-1, Sub-2）
   - `0e357a6`（Sub-3）
   - `8e07bb6`（Sub-4）
+  - `3036bf0`（traceability）
+- PR：[#25](https://github.com/gui16789/zpdAcademy/pull/25)
 - Event Log：`docs/events/DEV-20260226-004-event-log.md`
