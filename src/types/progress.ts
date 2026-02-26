@@ -11,3 +11,8 @@ export interface LearningUnitWithStatus extends LearningUnit {
   status: UnitStatus
   isActionable: boolean
 }
+
+export interface ProgressSnapshot {
+  completedUnitIds: string[]
+  currentUnlockedIndex: number
+}

@@ -2,12 +2,19 @@ import type { LearningUnit } from '../types/progress'
 
 export const TASK_ID = 'DEV-20260226-001'
 export const MAP_PROGRESS_TASK_ID = 'DEV-20260226-002'
+export const PROGRESS_PERSIST_TASK_ID = 'DEV-20260226-003'
+export const PROGRESS_STORAGE_KEY = 'zpd-academy-progress-v1'
 
 export const ROUTES = {
   root: '/',
   login: '/login',
   map: '/map',
+  question: '/question/:unitId',
 } as const
+
+export function buildQuestionRoute(unitId: string): string {
+  return ROUTES.question.replace(':unitId', unitId)
+}
 
 export const UI_CONFIG = {
   touchTargetMinPx: 44,
