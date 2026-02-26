@@ -42,4 +42,17 @@ describe('questionService', () => {
     expect(result.score).toBe(50)
     expect(result.isPassed).toBe(false)
   })
+
+  it('extracts wrong question ids from evaluation', () => {
+    const questions = questionService.getQuestionsByUnit('unit-03')
+    const submissions = questions.map((question, index) => ({
+      questionId: question.id,
+      selectedOptionId: index === 0 ? 'invalid' : question.correctOptionId,
+    }))
+
+    const evaluation = questionService.evaluateQuestions(questions, submissions)
+    const wrongQuestionIds = questionService.getWrongQuestionIds(evaluation)
+
+    expect(wrongQuestionIds).toEqual([questions[0]?.id])
+  })
 })
