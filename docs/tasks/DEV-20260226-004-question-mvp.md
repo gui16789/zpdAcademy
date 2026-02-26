@@ -55,4 +55,8 @@
 ## 流水线记录（GitHub）
 - 主任务 Issue：[#20](https://github.com/gui16789/zpdAcademy/issues/20)
 - 功能分支：`feat/DEV-20260226-004-question-mvp`
+- Commit：
+  - `afaf473`（Sub-1, Sub-2）
+  - `0e357a6`（Sub-3）
+  - `8e07bb6`（Sub-4）
 - Event Log：`docs/events/DEV-20260226-004-event-log.md`
