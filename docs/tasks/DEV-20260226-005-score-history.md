@@ -54,4 +54,8 @@
 ## 流水线记录（GitHub）
 - 主任务 Issue：[#26](https://github.com/gui16789/zpdAcademy/issues/26)
 - 功能分支：`feat/DEV-20260226-005-score-history`
+- Commit：
+  - `bbd1e6a`（Sub-1, Sub-2）
+  - `546029b`（Sub-3）
+  - `d622fe7`（Sub-4）
 - Event Log：`docs/events/DEV-20260226-005-event-log.md`
