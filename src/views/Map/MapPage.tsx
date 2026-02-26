@@ -1,6 +1,13 @@
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
-import { LEARNING_UNITS, MAP_PROGRESS_TASK_ID, ROUTES, UI_CONFIG } from '../../config/constants'
+import {
+  LEARNING_UNITS,
+  MAP_PROGRESS_TASK_ID,
+  PROGRESS_PERSIST_TASK_ID,
+  ROUTES,
+  UI_CONFIG,
+  buildQuestionRoute,
+} from '../../config/constants'
 import { getLearningUnitsWithStatus } from '../../features/progress/selectors'
 import { useProgressStore } from '../../store/progressStore'
 import { useUserStore } from '../../store/userStore'
@@ -12,7 +19,6 @@ export function MapPage() {
   const clearUser = useUserStore((state) => state.clearUser)
   const completedUnitIds = useProgressStore((state) => state.completedUnitIds)
   const currentUnlockedIndex = useProgressStore((state) => state.currentUnlockedIndex)
-  const markUnitCompleted = useProgressStore((state) => state.markUnitCompleted)
   const resetProgress = useProgressStore((state) => state.resetProgress)
   const [feedback, setFeedback] = useState<string | null>(null)
 
@@ -35,7 +41,7 @@ export function MapPage() {
     }
 
     if (unit.status === 'unlocked') {
-      return '开始学习'
+      return '进入单元'
     }
 
     return '未解锁'
@@ -43,16 +49,11 @@ export function MapPage() {
 
   function handleUnitAction(unit: LearningUnitWithStatus) {
     if (unit.status === 'locked') {
+      setFeedback(`${unit.title} 尚未解锁。`)
       return
     }
 
-    if (unit.status === 'unlocked') {
-      markUnitCompleted(unit.id)
-      setFeedback(`${unit.title} 已完成，下一单元已解锁。`)
-      return
-    }
-
-    setFeedback(`正在复习 ${unit.title}。`)
+    navigate(buildQuestionRoute(unit.id))
   }
 
   return (
@@ -62,6 +63,12 @@ export function MapPage() {
         <h1 className="mt-3 text-4xl font-bold text-[color:var(--ink)]">欢迎，{user.username}</h1>
         <p className="mt-3 max-w-2xl text-base text-[color:var(--ink-muted)]">
           学习进度任务：<span className="font-semibold text-[color:var(--accent)]">{MAP_PROGRESS_TASK_ID}</span>
+        </p>
+        <p className="mt-1 max-w-2xl text-base text-[color:var(--ink-muted)]">
+          持久化任务：
+          <span className="ml-1 font-semibold text-[color:var(--accent)]">
+            {PROGRESS_PERSIST_TASK_ID}
+          </span>
         </p>
         <p className="mt-3 text-base text-[color:var(--ink-muted)]">
           进度：{completedCount} / {LEARNING_UNITS.length} 单元已完成
