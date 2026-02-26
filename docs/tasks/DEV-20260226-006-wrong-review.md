@@ -54,4 +54,9 @@
 ## 流水线记录（GitHub）
 - 主任务 Issue：[#32](https://github.com/gui16789/zpdAcademy/issues/32)
 - 功能分支：`feat/DEV-20260226-006-wrong-review`
+- Commit：
+  - `a48ce39`（Sub-1）
+  - `c870394`（Sub-2）
+  - `dc12932`（Sub-3）
+  - `65f06b8`（Sub-4）
 - Event Log：`docs/events/DEV-20260226-006-event-log.md`
