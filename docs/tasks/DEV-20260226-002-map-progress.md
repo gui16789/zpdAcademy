@@ -54,4 +54,8 @@
 ## 流水线记录（GitHub）
 - 主任务 Issue：[#8](https://github.com/gui16789/zpdAcademy/issues/8)
 - 功能分支：`feat/DEV-20260226-002-map-progress`
+- Commit：
+  - `382b1ed`（Sub-1, Sub-2）
+  - `3b0ecbd`（Sub-3）
+  - `f987585`（Sub-4）
 - Event Log：`docs/events/DEV-20260226-002-event-log.md`
