@@ -11,6 +11,7 @@ export const QUESTION_BANK: SingleChoiceQuestion[] = [
       { id: 'c', label: 'useBuild' },
     ],
     correctOptionId: 'a',
+    explanation: 'useState 是 React 官方提供的状态 Hook，组件内状态管理应优先使用它。',
   },
   {
     id: 'q-0102',
@@ -22,6 +23,7 @@ export const QUESTION_BANK: SingleChoiceQuestion[] = [
       { id: 'c', label: '自动生成 UI' },
     ],
     correctOptionId: 'b',
+    explanation: 'strict 模式帮助在编译期发现类型风险，降低运行时错误。',
   },
   {
     id: 'q-0201',
@@ -33,6 +35,7 @@ export const QUESTION_BANK: SingleChoiceQuestion[] = [
       { id: 'c', label: 'memo' },
     ],
     correctOptionId: 'a',
+    explanation: 'Zustand 通常通过 create 构建 store，再通过 hook 在组件中读取。',
   },
   {
     id: 'q-0202',
@@ -44,6 +47,7 @@ export const QUESTION_BANK: SingleChoiceQuestion[] = [
       { id: 'c', label: 'Navigator' },
     ],
     correctOptionId: 'b',
+    explanation: 'v6 使用 Routes + Route，Switch 是早期版本写法。',
   },
   {
     id: 'q-0301',
@@ -55,6 +59,7 @@ export const QUESTION_BANK: SingleChoiceQuestion[] = [
       { id: 'c', label: '所有状态放到全局变量' },
     ],
     correctOptionId: 'a',
+    explanation: '单一职责意味着模块变化原因单一，可显著降低耦合。',
   },
   {
     id: 'q-0302',
@@ -66,6 +71,7 @@ export const QUESTION_BANK: SingleChoiceQuestion[] = [
       { id: 'c', label: '绕过类型检查' },
     ],
     correctOptionId: 'b',
+    explanation: '配置集中后可一处改动全局生效，并提升可读性。',
   },
   {
     id: 'q-0401',
@@ -77,6 +83,7 @@ export const QUESTION_BANK: SingleChoiceQuestion[] = [
       { id: 'c', label: '删除所有类型定义' },
     ],
     correctOptionId: 'b',
+    explanation: '标准化自检可显著减少回归风险，是 PR 准入前提。',
   },
   {
     id: 'q-0402',
@@ -88,5 +95,6 @@ export const QUESTION_BANK: SingleChoiceQuestion[] = [
       { id: 'c', label: '先合并到主分支' },
     ],
     correctOptionId: 'b',
+    explanation: '范围外改动需要先确认，否则会破坏任务原子性和可追溯性。',
   },
 ]
