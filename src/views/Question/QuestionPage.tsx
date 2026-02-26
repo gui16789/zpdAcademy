@@ -10,7 +10,7 @@ export function QuestionPage() {
   const navigate = useNavigate()
   const { unitId } = useParams()
   const user = useUserStore((state) => state.user)
-  const markUnitCompleted = useProgressStore((state) => state.markUnitCompleted)
+  const submitUnitResult = useProgressStore((state) => state.submitUnitResult)
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [evaluation, setEvaluation] = useState<QuestionEvaluation | null>(null)
   const unit = LEARNING_UNITS.find((item) => item.id === unitId)
@@ -46,11 +46,12 @@ export function QuestionPage() {
       selectedOptionId: answers[question.id] ?? '',
     }))
 
-    setEvaluation(questionService.evaluateQuestions(questions, submissions))
+    const nextEvaluation = questionService.evaluateQuestions(questions, submissions)
+    submitUnitResult(activeUnit.id, nextEvaluation.score, nextEvaluation.isPassed)
+    setEvaluation(nextEvaluation)
   }
 
   function handleCompleteAndBack() {
-    markUnitCompleted(activeUnit.id)
     navigate(ROUTES.map)
   }
 
