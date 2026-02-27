@@ -1,5 +1,10 @@
 import { PROGRESS_STORAGE_KEY } from '../../config/constants'
-import type { ProgressSnapshot, UnitScoreRecord } from '../../types/progress'
+import type {
+  ProgressSnapshot,
+  UnitScoreRecord,
+  WrongQuestionRecords,
+  WrongQuestionUpdatedAt,
+} from '../../types/progress'
 
 const DEFAULT_UNLOCKED_INDEX = 0
 
@@ -38,11 +43,37 @@ function normalizeUnitScoreRecords(value: unknown): Record<string, UnitScoreReco
   return Object.fromEntries(entries) as Record<string, UnitScoreRecord>
 }
 
+function normalizeWrongQuestionRecords(value: unknown): WrongQuestionRecords {
+  if (!value || typeof value !== 'object') {
+    return {}
+  }
+
+  const entries = Object.entries(value as Record<string, unknown>)
+    .filter((entry) => Array.isArray(entry[1]) && entry[1].every((item) => typeof item === 'string'))
+    .map(([unitId, questionIds]) => [unitId, Array.from(new Set(questionIds as string[]))])
+
+  return Object.fromEntries(entries) as WrongQuestionRecords
+}
+
+function normalizeWrongQuestionUpdatedAt(value: unknown): WrongQuestionUpdatedAt {
+  if (!value || typeof value !== 'object') {
+    return {}
+  }
+
+  const entries = Object.entries(value as Record<string, unknown>).filter(
+    (entry) => typeof entry[1] === 'number' && Number.isFinite(entry[1]) && entry[1] > 0,
+  )
+
+  return Object.fromEntries(entries.map(([unitId, updatedAt]) => [unitId, Math.floor(updatedAt as number)]))
+}
+
 export function getDefaultProgressSnapshot(): ProgressSnapshot {
   return {
     completedUnitIds: [],
     currentUnlockedIndex: DEFAULT_UNLOCKED_INDEX,
     unitScoreRecords: {},
+    wrongQuestionRecords: {},
+    wrongQuestionUpdatedAt: {},
   }
 }
 
@@ -62,6 +93,8 @@ export function normalizeProgressSnapshot(value: unknown): ProgressSnapshot {
     completedUnitIds,
     currentUnlockedIndex,
     unitScoreRecords: normalizeUnitScoreRecords(candidate.unitScoreRecords),
+    wrongQuestionRecords: normalizeWrongQuestionRecords(candidate.wrongQuestionRecords),
+    wrongQuestionUpdatedAt: normalizeWrongQuestionUpdatedAt(candidate.wrongQuestionUpdatedAt),
   }
 }
 

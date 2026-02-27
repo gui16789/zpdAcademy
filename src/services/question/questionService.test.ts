@@ -9,6 +9,12 @@ describe('questionService', () => {
     expect(questions.every((question) => question.unitId === 'unit-01')).toBe(true)
   })
 
+  it('returns questions by ids', () => {
+    const questions = questionService.getQuestionsByIds(['q-0101', 'q-0301', 'invalid'])
+
+    expect(questions.map((question) => question.id)).toEqual(['q-0101', 'q-0301'])
+  })
+
   it('evaluates full correct answers as passed', () => {
     const questions = questionService.getQuestionsByUnit('unit-01')
     const submissions = questions.map((question) => ({

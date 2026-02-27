@@ -11,7 +11,15 @@ interface ProgressStoreState {
   completedUnitIds: string[]
   currentUnlockedIndex: number
   unitScoreRecords: ProgressSnapshot['unitScoreRecords']
-  submitUnitResult: (unitId: string, score: number, isPassed: boolean) => void
+  wrongQuestionRecords: ProgressSnapshot['wrongQuestionRecords']
+  wrongQuestionUpdatedAt: ProgressSnapshot['wrongQuestionUpdatedAt']
+  submitUnitResult: (
+    unitId: string,
+    score: number,
+    isPassed: boolean,
+    wrongQuestionIds?: string[],
+  ) => void
+  clearWrongQuestionsForUnit: (unitId: string) => void
   resetProgress: () => void
 }
 
@@ -33,6 +41,8 @@ function persistSnapshot(snapshot: ProgressSnapshot): void {
     completedUnitIds: snapshot.completedUnitIds,
     currentUnlockedIndex: clampUnlockedIndex(snapshot.currentUnlockedIndex),
     unitScoreRecords: snapshot.unitScoreRecords,
+    wrongQuestionRecords: snapshot.wrongQuestionRecords,
+    wrongQuestionUpdatedAt: snapshot.wrongQuestionUpdatedAt,
   })
 }
 
@@ -42,9 +52,23 @@ export const useProgressStore = create<ProgressStoreState>((set) => ({
   unitScoreRecords: Object.fromEntries(
     Object.entries(persistedSnapshot.unitScoreRecords).filter(([unitId]) => unitIdSet.has(unitId)),
   ),
-  submitUnitResult: (unitId, score, isPassed) =>
+  wrongQuestionRecords: Object.fromEntries(
+    Object.entries(persistedSnapshot.wrongQuestionRecords)
+      .filter(([unitId, questionIds]) => unitIdSet.has(unitId) && Array.isArray(questionIds))
+      .map(([unitId, questionIds]) => [unitId, Array.from(new Set(questionIds))]),
+  ),
+  wrongQuestionUpdatedAt: Object.fromEntries(
+    Object.entries(persistedSnapshot.wrongQuestionUpdatedAt).filter(
+      ([unitId, updatedAt]) =>
+        unitIdSet.has(unitId) && typeof updatedAt === 'number' && Number.isFinite(updatedAt) && updatedAt > 0,
+    ),
+  ),
+  submitUnitResult: (unitId, score, isPassed, wrongQuestionIds = []) =>
     set((state) => {
       const safeScore = Math.max(0, Math.min(100, Math.round(score)))
+      const nextWrongQuestionIds = Array.from(
+        new Set(wrongQuestionIds.filter((questionId) => typeof questionId === 'string' && questionId.length > 0)),
+      )
       const existingRecord = state.unitScoreRecords[unitId]
       const nextRecord = {
         attempts: (existingRecord?.attempts ?? 0) + 1,
@@ -54,6 +78,16 @@ export const useProgressStore = create<ProgressStoreState>((set) => ({
       const unitScoreRecords = {
         ...state.unitScoreRecords,
         [unitId]: nextRecord,
+      }
+      const wrongQuestionRecords = { ...state.wrongQuestionRecords }
+      const wrongQuestionUpdatedAt = { ...state.wrongQuestionUpdatedAt }
+
+      if (nextWrongQuestionIds.length > 0) {
+        wrongQuestionRecords[unitId] = nextWrongQuestionIds
+        wrongQuestionUpdatedAt[unitId] = Date.now()
+      } else {
+        delete wrongQuestionRecords[unitId]
+        delete wrongQuestionUpdatedAt[unitId]
       }
 
       const completedUnitIds =
@@ -71,11 +105,37 @@ export const useProgressStore = create<ProgressStoreState>((set) => ({
         completedUnitIds,
         currentUnlockedIndex: nextUnlockedIndex,
         unitScoreRecords,
+        wrongQuestionRecords,
+        wrongQuestionUpdatedAt,
       }
 
       persistSnapshot(nextSnapshot)
 
       return nextSnapshot
+    }),
+  clearWrongQuestionsForUnit: (unitId) =>
+    set((state) => {
+      if (!state.wrongQuestionRecords[unitId]) {
+        return state
+      }
+
+      const wrongQuestionRecords = { ...state.wrongQuestionRecords }
+      const wrongQuestionUpdatedAt = { ...state.wrongQuestionUpdatedAt }
+      delete wrongQuestionRecords[unitId]
+      delete wrongQuestionUpdatedAt[unitId]
+
+      persistSnapshot({
+        completedUnitIds: state.completedUnitIds,
+        currentUnlockedIndex: state.currentUnlockedIndex,
+        unitScoreRecords: state.unitScoreRecords,
+        wrongQuestionRecords,
+        wrongQuestionUpdatedAt,
+      })
+
+      return {
+        wrongQuestionRecords,
+        wrongQuestionUpdatedAt,
+      }
     }),
   resetProgress: () => {
     clearProgressSnapshot()
@@ -83,6 +143,8 @@ export const useProgressStore = create<ProgressStoreState>((set) => ({
       completedUnitIds: [],
       currentUnlockedIndex: INITIAL_UNLOCKED_INDEX,
       unitScoreRecords: {},
+      wrongQuestionRecords: {},
+      wrongQuestionUpdatedAt: {},
     })
   },
 }))

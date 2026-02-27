@@ -24,6 +24,12 @@ describe('progressStorage', () => {
       unitScoreRecords: {
         'unit-01': { attempts: 2, lastScore: 80, bestScore: 90 },
       },
+      wrongQuestionRecords: {
+        'unit-01': ['u1-q1', 'u1-q3'],
+      },
+      wrongQuestionUpdatedAt: {
+        'unit-01': 1700000000000,
+      },
     }
 
     saveProgressSnapshot(snapshot)
@@ -48,12 +54,20 @@ describe('progressStorage', () => {
           bestScore: 120,
         },
       },
+      wrongQuestionRecords: {
+        'unit-01': ['u1-q1', 1],
+      },
+      wrongQuestionUpdatedAt: {
+        'unit-01': -1,
+      },
     }
 
     expect(normalizeProgressSnapshot(malformed)).toEqual({
       completedUnitIds: [],
       currentUnlockedIndex: 0,
       unitScoreRecords: {},
+      wrongQuestionRecords: {},
+      wrongQuestionUpdatedAt: {},
     })
   })
 
@@ -67,6 +81,46 @@ describe('progressStorage', () => {
       completedUnitIds: ['unit-02'],
       currentUnlockedIndex: 1,
       unitScoreRecords: {},
+      wrongQuestionRecords: {},
+      wrongQuestionUpdatedAt: {},
+    })
+  })
+
+  it('normalizes and de-duplicates wrong question records', () => {
+    expect(
+      normalizeProgressSnapshot({
+        wrongQuestionRecords: {
+          'unit-01': ['u1-q1', 'u1-q1', 'u1-q2'],
+        },
+      }),
+    ).toEqual({
+      completedUnitIds: [],
+      currentUnlockedIndex: 0,
+      unitScoreRecords: {},
+      wrongQuestionRecords: {
+        'unit-01': ['u1-q1', 'u1-q2'],
+      },
+      wrongQuestionUpdatedAt: {},
+    })
+  })
+
+  it('normalizes wrong question updated timestamps', () => {
+    expect(
+      normalizeProgressSnapshot({
+        wrongQuestionUpdatedAt: {
+          'unit-01': 1700000000999.9,
+          'unit-02': 'bad',
+          'unit-03': -3,
+        },
+      }),
+    ).toEqual({
+      completedUnitIds: [],
+      currentUnlockedIndex: 0,
+      unitScoreRecords: {},
+      wrongQuestionRecords: {},
+      wrongQuestionUpdatedAt: {
+        'unit-01': 1700000000999,
+      },
     })
   })
 
@@ -76,6 +130,12 @@ describe('progressStorage', () => {
       currentUnlockedIndex: 1,
       unitScoreRecords: {
         'unit-01': { attempts: 1, lastScore: 75, bestScore: 75 },
+      },
+      wrongQuestionRecords: {
+        'unit-01': ['u1-q2'],
+      },
+      wrongQuestionUpdatedAt: {
+        'unit-01': 1700000000000,
       },
     })
 

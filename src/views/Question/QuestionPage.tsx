@@ -1,6 +1,12 @@
 import { useState } from 'react'
-import { Navigate, useNavigate, useParams } from 'react-router-dom'
-import { LEARNING_UNITS, QUESTION_MVP_TASK_ID, ROUTES, UI_CONFIG } from '../../config/constants'
+import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import {
+  LEARNING_UNITS,
+  QUESTION_MODES,
+  QUESTION_MVP_TASK_ID,
+  ROUTES,
+  UI_CONFIG,
+} from '../../config/constants'
 import { questionService } from '../../services/question/questionService'
 import { useProgressStore } from '../../store/progressStore'
 import { useUserStore } from '../../store/userStore'
@@ -9,12 +15,26 @@ import type { QuestionEvaluation, SingleChoiceQuestion } from '../../types/quest
 export function QuestionPage() {
   const navigate = useNavigate()
   const { unitId } = useParams()
+  const [searchParams] = useSearchParams()
   const user = useUserStore((state) => state.user)
   const submitUnitResult = useProgressStore((state) => state.submitUnitResult)
+  const wrongQuestionRecords = useProgressStore((state) => state.wrongQuestionRecords)
+  const unit = LEARNING_UNITS.find((item) => item.id === unitId)
+  const entryMode = searchParams.get('mode')
+  const initialWrongQuestionIds =
+    entryMode === QUESTION_MODES.wrong && unit ? wrongQuestionRecords[unit.id] ?? [] : []
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [evaluation, setEvaluation] = useState<QuestionEvaluation | null>(null)
-  const [activeQuestionIds, setActiveQuestionIds] = useState<string[] | null>(null)
-  const unit = LEARNING_UNITS.find((item) => item.id === unitId)
+  const [activeQuestionIds, setActiveQuestionIds] = useState<string[] | null>(
+    initialWrongQuestionIds.length > 0 ? initialWrongQuestionIds : null,
+  )
+  const [modeFeedback] = useState<string | null>(() =>
+    entryMode === QUESTION_MODES.wrong
+      ? initialWrongQuestionIds.length > 0
+        ? `已进入错题重做模式，共 ${initialWrongQuestionIds.length} 题。`
+        : '当前单元暂无历史错题，已切换为全量作答模式。'
+      : null,
+  )
 
   if (!user) {
     return <Navigate to={ROUTES.login} replace />
@@ -53,7 +73,12 @@ export function QuestionPage() {
     }))
 
     const nextEvaluation = questionService.evaluateQuestions(activeQuestions, submissions)
-    submitUnitResult(activeUnit.id, nextEvaluation.score, nextEvaluation.isPassed)
+    submitUnitResult(
+      activeUnit.id,
+      nextEvaluation.score,
+      nextEvaluation.isPassed,
+      questionService.getWrongQuestionIds(nextEvaluation),
+    )
     setEvaluation(nextEvaluation)
   }
 
@@ -116,6 +141,7 @@ export function QuestionPage() {
         <p className="mt-1 text-sm text-[color:var(--ink-muted)]">
           当前模式：{activeQuestionIds ? `错题重做（${activeQuestionIds.length} 题）` : '全量作答'}
         </p>
+        {modeFeedback ? <p className="mt-1 text-sm text-[color:var(--accent)]">{modeFeedback}</p> : null}
 
         {activeQuestions.length === 0 ? (
           <div className="mt-6 rounded-2xl border border-[color:var(--stroke)] bg-[#0a1d3b]/70 p-5">

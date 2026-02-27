@@ -12,10 +12,19 @@ export const ROUTES = {
   login: '/login',
   map: '/map',
   question: '/question/:unitId',
+  wrongBook: '/wrong-book',
 } as const
 
 export function buildQuestionRoute(unitId: string): string {
   return ROUTES.question.replace(':unitId', unitId)
+}
+
+export const QUESTION_MODES = {
+  wrong: 'wrong',
+} as const
+
+export function buildWrongOnlyQuestionRoute(unitId: string): string {
+  return `${buildQuestionRoute(unitId)}?mode=${QUESTION_MODES.wrong}`
 }
 
 export const UI_CONFIG = {

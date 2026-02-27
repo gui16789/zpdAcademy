@@ -18,8 +18,13 @@ export interface UnitScoreRecord {
   bestScore: number
 }
 
+export type WrongQuestionRecords = Record<string, string[]>
+export type WrongQuestionUpdatedAt = Record<string, number>
+
 export interface ProgressSnapshot {
   completedUnitIds: string[]
   currentUnlockedIndex: number
   unitScoreRecords: Record<string, UnitScoreRecord>
+  wrongQuestionRecords: WrongQuestionRecords
+  wrongQuestionUpdatedAt: WrongQuestionUpdatedAt
 }
