@@ -8,15 +8,23 @@ import type {
 
 export interface IQuestionService {
   getQuestionsByUnit(unitId: string): SingleChoiceQuestion[]
+  getQuestionsByIds(questionIds: string[]): SingleChoiceQuestion[]
   evaluateQuestions(
     questions: SingleChoiceQuestion[],
     submissions: QuestionSubmission[],
   ): QuestionEvaluation
+  getWrongQuestionIds(evaluation: QuestionEvaluation): string[]
 }
 
 class QuestionService implements IQuestionService {
   public getQuestionsByUnit(unitId: string): SingleChoiceQuestion[] {
     return QUESTION_BANK.filter((question) => question.unitId === unitId)
+  }
+
+  public getQuestionsByIds(questionIds: string[]): SingleChoiceQuestion[] {
+    const idSet = new Set(questionIds.filter((questionId) => typeof questionId === 'string'))
+
+    return QUESTION_BANK.filter((question) => idSet.has(question.id))
   }
 
   public evaluateQuestions(
@@ -50,6 +58,10 @@ class QuestionService implements IQuestionService {
       isPassed: score >= passScore,
       results,
     }
+  }
+
+  public getWrongQuestionIds(evaluation: QuestionEvaluation): string[] {
+    return evaluation.results.filter((item) => !item.isCorrect).map((item) => item.questionId)
   }
 }
 

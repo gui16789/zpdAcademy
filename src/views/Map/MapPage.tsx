@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import {
+  buildWrongOnlyQuestionRoute,
   LEARNING_UNITS,
   MAP_PROGRESS_TASK_ID,
   PROGRESS_PERSIST_TASK_ID,
@@ -21,12 +22,14 @@ export function MapPage() {
   const completedUnitIds = useProgressStore((state) => state.completedUnitIds)
   const currentUnlockedIndex = useProgressStore((state) => state.currentUnlockedIndex)
   const unitScoreRecords = useProgressStore((state) => state.unitScoreRecords)
+  const wrongQuestionRecords = useProgressStore((state) => state.wrongQuestionRecords)
   const resetProgress = useProgressStore((state) => state.resetProgress)
   const [feedback, setFeedback] = useState<string | null>(null)
 
   const units = getLearningUnitsWithStatus(LEARNING_UNITS, completedUnitIds, currentUnlockedIndex)
 
   const completedCount = completedUnitIds.length
+  const totalWrongCount = Object.values(wrongQuestionRecords).reduce((total, ids) => total + ids.length, 0)
 
   if (!user) {
     return <Navigate to={ROUTES.login} replace />
@@ -58,6 +61,15 @@ export function MapPage() {
     navigate(buildQuestionRoute(unit.id))
   }
 
+  function handleWrongOnlyAction(unit: LearningUnitWithStatus) {
+    if (unit.status === 'locked') {
+      setFeedback(`${unit.title} 尚未解锁。`)
+      return
+    }
+
+    navigate(buildWrongOnlyQuestionRoute(unit.id))
+  }
+
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col justify-center px-6 py-12">
       <section className="rounded-3xl border border-[color:var(--stroke)] bg-[color:var(--surface)] p-8 shadow-[0_16px_50px_rgba(0,0,0,0.3)] backdrop-blur-sm md:p-10">
@@ -79,12 +91,25 @@ export function MapPage() {
         <p className="mt-3 text-base text-[color:var(--ink-muted)]">
           进度：{completedCount} / {LEARNING_UNITS.length} 单元已完成
         </p>
+        <p className="mt-1 text-base text-[color:var(--ink-muted)]">
+          错题本：{totalWrongCount} 题待复盘
+        </p>
+        <button
+          type="button"
+          onClick={() => navigate(ROUTES.wrongBook)}
+          className="mt-4 inline-flex rounded-2xl border border-[color:var(--stroke)] bg-transparent px-6 text-base font-semibold text-[color:var(--ink)] transition hover:border-[color:var(--accent)]"
+          style={{ minHeight: UI_CONFIG.touchTargetMinPx }}
+        >
+          打开错题本
+        </button>
 
         {feedback ? <p className="mt-4 text-sm text-[color:var(--accent)]">{feedback}</p> : null}
 
         <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2">
           {units.map((unit) => {
             const scoreRecord = unitScoreRecords[unit.id]
+            const wrongCount = wrongQuestionRecords[unit.id]?.length ?? 0
+            const showWrongOnlyAction = unit.isActionable && wrongCount > 0
 
             return (
               <article
@@ -123,15 +148,28 @@ export function MapPage() {
                 ) : (
                   <p className="mt-2 text-xs text-[color:var(--ink-muted)]">尚未作答</p>
                 )}
-                <button
-                  type="button"
-                  disabled={!unit.isActionable}
-                  onClick={() => handleUnitAction(unit)}
-                  className="mt-4 w-full rounded-xl border border-[color:var(--stroke)] px-4 text-base font-semibold transition enabled:hover:border-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
-                  style={{ minHeight: UI_CONFIG.touchTargetMinPx }}
-                >
-                  {getButtonLabel(unit)}
-                </button>
+                <p className="mt-2 text-xs text-[color:var(--ink-muted)]">待复盘错题：{wrongCount} 题</p>
+                <div className={`mt-4 grid gap-2 ${showWrongOnlyAction ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                  <button
+                    type="button"
+                    disabled={!unit.isActionable}
+                    onClick={() => handleUnitAction(unit)}
+                    className="w-full rounded-xl border border-[color:var(--stroke)] px-4 text-base font-semibold transition enabled:hover:border-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
+                    style={{ minHeight: UI_CONFIG.touchTargetMinPx }}
+                  >
+                    {getButtonLabel(unit)}
+                  </button>
+                  {showWrongOnlyAction ? (
+                    <button
+                      type="button"
+                      onClick={() => handleWrongOnlyAction(unit)}
+                      className="w-full rounded-xl border border-[color:var(--stroke)] px-4 text-base font-semibold transition hover:border-[color:var(--accent)]"
+                      style={{ minHeight: UI_CONFIG.touchTargetMinPx }}
+                    >
+                      仅做错题
+                    </button>
+                  ) : null}
+                </div>
               </article>
             )
           })}

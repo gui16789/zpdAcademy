@@ -3,6 +3,7 @@ import { ROUTES } from '../config/constants'
 import { LoginPage } from '../views/Login/LoginPage'
 import { MapPage } from '../views/Map/MapPage'
 import { QuestionPage } from '../views/Question/QuestionPage'
+import { WrongBookPage } from '../views/WrongBook/WrongBookPage'
 
 export function AppRouter() {
   return (
@@ -12,6 +13,7 @@ export function AppRouter() {
         <Route path={ROUTES.login} element={<LoginPage />} />
         <Route path={ROUTES.map} element={<MapPage />} />
         <Route path={ROUTES.question} element={<QuestionPage />} />
+        <Route path={ROUTES.wrongBook} element={<WrongBookPage />} />
       </Routes>
     </BrowserRouter>
   )

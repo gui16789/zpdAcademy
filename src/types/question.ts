@@ -9,6 +9,7 @@ export interface SingleChoiceQuestion {
   prompt: string
   options: QuestionOption[]
   correctOptionId: string
+  explanation: string
 }
 
 export interface QuestionSubmission {

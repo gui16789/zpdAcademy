@@ -9,6 +9,12 @@ describe('questionService', () => {
     expect(questions.every((question) => question.unitId === 'unit-01')).toBe(true)
   })
 
+  it('returns questions by ids', () => {
+    const questions = questionService.getQuestionsByIds(['q-0101', 'q-0301', 'invalid'])
+
+    expect(questions.map((question) => question.id)).toEqual(['q-0101', 'q-0301'])
+  })
+
   it('evaluates full correct answers as passed', () => {
     const questions = questionService.getQuestionsByUnit('unit-01')
     const submissions = questions.map((question) => ({
@@ -41,5 +47,18 @@ describe('questionService', () => {
     expect(result.correctCount).toBe(1)
     expect(result.score).toBe(50)
     expect(result.isPassed).toBe(false)
+  })
+
+  it('extracts wrong question ids from evaluation', () => {
+    const questions = questionService.getQuestionsByUnit('unit-03')
+    const submissions = questions.map((question, index) => ({
+      questionId: question.id,
+      selectedOptionId: index === 0 ? 'invalid' : question.correctOptionId,
+    }))
+
+    const evaluation = questionService.evaluateQuestions(questions, submissions)
+    const wrongQuestionIds = questionService.getWrongQuestionIds(evaluation)
+
+    expect(wrongQuestionIds).toEqual([questions[0]?.id])
   })
 })
