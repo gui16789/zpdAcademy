@@ -23,6 +23,7 @@ export function MapPage() {
   const currentUnlockedIndex = useProgressStore((state) => state.currentUnlockedIndex)
   const unitScoreRecords = useProgressStore((state) => state.unitScoreRecords)
   const wrongQuestionRecords = useProgressStore((state) => state.wrongQuestionRecords)
+  const wrongQuestionUpdatedAt = useProgressStore((state) => state.wrongQuestionUpdatedAt)
   const resetProgress = useProgressStore((state) => state.resetProgress)
   const [feedback, setFeedback] = useState<string | null>(null)
 
@@ -70,6 +71,14 @@ export function MapPage() {
     navigate(buildWrongOnlyQuestionRoute(unit.id))
   }
 
+  function formatUpdatedAt(timestamp: number | undefined): string {
+    if (!timestamp || timestamp <= 0) {
+      return '—'
+    }
+
+    return new Date(timestamp).toLocaleString('zh-CN', { hour12: false })
+  }
+
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col justify-center px-6 py-12">
       <section className="rounded-3xl border border-[color:var(--stroke)] bg-[color:var(--surface)] p-8 shadow-[0_16px_50px_rgba(0,0,0,0.3)] backdrop-blur-sm md:p-10">
@@ -109,6 +118,7 @@ export function MapPage() {
           {units.map((unit) => {
             const scoreRecord = unitScoreRecords[unit.id]
             const wrongCount = wrongQuestionRecords[unit.id]?.length ?? 0
+            const updatedAt = wrongQuestionUpdatedAt[unit.id]
             const showWrongOnlyAction = unit.isActionable && wrongCount > 0
 
             return (
@@ -149,6 +159,9 @@ export function MapPage() {
                   <p className="mt-2 text-xs text-[color:var(--ink-muted)]">尚未作答</p>
                 )}
                 <p className="mt-2 text-xs text-[color:var(--ink-muted)]">待复盘错题：{wrongCount} 题</p>
+                <p className="mt-1 text-xs text-[color:var(--ink-muted)]">
+                  最近错题：{formatUpdatedAt(updatedAt)}
+                </p>
                 <div className={`mt-4 grid gap-2 ${showWrongOnlyAction ? 'grid-cols-2' : 'grid-cols-1'}`}>
                   <button
                     type="button"
