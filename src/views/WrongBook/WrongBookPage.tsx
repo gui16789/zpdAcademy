@@ -51,6 +51,7 @@ export function WrongBookPage() {
   const wrongQuestionRecords = useProgressStore((state) => state.wrongQuestionRecords)
   const wrongQuestionUpdatedAt = useProgressStore((state) => state.wrongQuestionUpdatedAt)
   const clearWrongQuestionsForUnit = useProgressStore((state) => state.clearWrongQuestionsForUnit)
+  const clearAllWrongQuestions = useProgressStore((state) => state.clearAllWrongQuestions)
 
   if (!user) {
     return <Navigate to={ROUTES.login} replace />
@@ -74,6 +75,18 @@ export function WrongBookPage() {
     return new Date(timestamp).toLocaleString('zh-CN', { hour12: false })
   }
 
+  function handleClearAllWrongQuestions(): void {
+    const shouldClear = window.confirm(
+      `确认清空全部错题吗？\n将删除当前 ${totalWrongCount} 道错题记录，且不可恢复。`,
+    )
+
+    if (!shouldClear) {
+      return
+    }
+
+    clearAllWrongQuestions()
+  }
+
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col justify-center px-6 py-12">
       <section className="rounded-3xl border border-[color:var(--stroke)] bg-[color:var(--surface)] p-8 shadow-[0_16px_50px_rgba(0,0,0,0.3)] backdrop-blur-sm md:p-10">
@@ -82,6 +95,16 @@ export function WrongBookPage() {
         <p className="mt-3 text-base text-[color:var(--ink-muted)]">
           当前累计 {totalWrongCount} 题待复盘，按单元组织。
         </p>
+        {sections.length > 0 ? (
+          <button
+            type="button"
+            onClick={handleClearAllWrongQuestions}
+            className="mt-4 inline-flex rounded-xl border border-[#ff7f9d] px-4 text-sm font-semibold text-[#ff9db3] transition hover:bg-[rgba(255,127,157,0.08)]"
+            style={{ minHeight: UI_CONFIG.touchTargetMinPx }}
+          >
+            清空全部错题
+          </button>
+        ) : null}
 
         {sections.length === 0 ? (
           <div className="mt-6 rounded-2xl border border-[color:var(--stroke)] bg-[#0a1d3b]/70 p-5">

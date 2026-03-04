@@ -20,6 +20,7 @@ interface ProgressStoreState {
     wrongQuestionIds?: string[],
   ) => void
   clearWrongQuestionsForUnit: (unitId: string) => void
+  clearAllWrongQuestions: () => void
   resetProgress: () => void
 }
 
@@ -135,6 +136,28 @@ export const useProgressStore = create<ProgressStoreState>((set) => ({
       return {
         wrongQuestionRecords,
         wrongQuestionUpdatedAt,
+      }
+    }),
+  clearAllWrongQuestions: () =>
+    set((state) => {
+      if (
+        Object.keys(state.wrongQuestionRecords).length === 0 &&
+        Object.keys(state.wrongQuestionUpdatedAt).length === 0
+      ) {
+        return state
+      }
+
+      persistSnapshot({
+        completedUnitIds: state.completedUnitIds,
+        currentUnlockedIndex: state.currentUnlockedIndex,
+        unitScoreRecords: state.unitScoreRecords,
+        wrongQuestionRecords: {},
+        wrongQuestionUpdatedAt: {},
+      })
+
+      return {
+        wrongQuestionRecords: {},
+        wrongQuestionUpdatedAt: {},
       }
     }),
   resetProgress: () => {
